@@ -1,0 +1,26 @@
+name: Vérification du MVP
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm install --prefix "${RUNNER_TEMP}/cap-browser" --no-save --no-package-lock playwright@1.58.2
+      - run: |
+          "${RUNNER_TEMP}/cap-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Parcours desktop et mobile
+        run: npm run test:browser
+        env:
+          NODE_PATH: ${{ runner.temp }}/cap-browser/node_modules

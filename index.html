@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173b31">
+  <meta name="description" content="Anticipe les dépenses, les charges et les prochaines rentrées de ton budget étudiant.">
+  <title>Cap Étudiant · Mon budget</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#dashboard">Aller au tableau de bord</a>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="brand" href="#dashboard" aria-label="Cap Étudiant, accueil">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Cap<span class="brand-accent">.</span> Étudiant</span>
+      </a>
+      <nav class="navigation" aria-label="Navigation principale">
+        <a href="#dashboard"><span class="nav-icon nav-dashboard" aria-hidden="true"></span>Vue d’ensemble</a>
+        <a href="#forecast"><span class="nav-icon nav-forecast" aria-hidden="true"></span>Prévision</a>
+        <a href="#entries"><span class="nav-icon nav-entries" aria-hidden="true"></span>Opérations</a>
+      </nav>
+      <a class="sidebar-settings" href="#settings"><span class="nav-icon nav-settings" aria-hidden="true"></span>Mes données</a>
+    </aside>
+
+    <main id="dashboard" tabindex="-1">
+      <header class="page-header">
+        <h1>Mon budget</h1>
+        <button class="button button-primary" id="add-entry" type="button"><span class="plus" aria-hidden="true">+</span> Ajouter une opération</button>
+      </header>
+
+      <section class="demo-banner" id="demo-banner" aria-label="Mode démo" hidden>
+        <div class="demo-message">
+          <span class="demo-symbol" aria-hidden="true">✦</span>
+          <div><strong>Mode démo</strong><p>Explore le budget avec des données d’exemple.</p></div>
+        </div>
+        <button class="button button-demo" id="start-budget" type="button">Passer à mon budget <span aria-hidden="true">→</span></button>
+      </section>
+
+      <div class="overview">
+        <section class="available-card" aria-labelledby="available-heading">
+          <div class="hero-content">
+            <h2 id="available-heading">Reste à dépenser</h2>
+            <p id="available-amount" class="available-amount">—</p>
+            <p id="forecast-description" class="forecast-description"></p>
+            <p class="horizon-pill"><span class="calendar-mark" aria-hidden="true"></span><span id="forecast-horizon">—</span></p>
+          </div>
+          <div class="hero-rings" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <span class="hero-spark" aria-hidden="true">✦</span>
+        </section>
+
+        <div class="overview-details">
+          <section class="metric-card" aria-labelledby="balance-heading">
+            <div class="metric-heading">
+              <span class="metric-icon balance-icon" aria-hidden="true"></span>
+              <h2 id="balance-heading">Solde actuel</h2>
+              <button class="text-button" id="balance-button" type="button">Modifier</button>
+            </div>
+            <p class="metric-amount" id="balance-amount">—</p>
+            <p class="metric-caption" id="balance-date"></p>
+          </section>
+          <section class="metric-card" aria-labelledby="weekly-heading">
+            <div class="metric-heading">
+              <span class="metric-icon weekly-icon" aria-hidden="true"></span>
+              <h2 id="weekly-heading">Repère par semaine</h2>
+            </div>
+            <p class="metric-amount" id="weekly-amount">—</p>
+            <p class="metric-caption" id="weekly-caption"></p>
+          </section>
+        </div>
+      </div>
+
+      <div id="risk-notice" class="risk-notice" hidden>
+        <span class="risk-symbol" aria-hidden="true">!</span>
+        <p id="risk-text"></p>
+      </div>
+
+      <div class="details">
+        <section class="detail-card" id="forecast" aria-labelledby="forecast-heading">
+          <header class="detail-heading">
+            <div>
+              <h2 id="forecast-heading">À venir</h2>
+              <p>Les prochaines rentrées et charges prévues.</p>
+            </div>
+          </header>
+          <p class="chart-caption" aria-hidden="true">Solde prévu en fin de journée</p>
+          <div id="forecast-chart" class="forecast-chart" role="img" tabindex="0" hidden></div>
+          <ul id="forecast-list" class="flow-list"></ul>
+          <div id="forecast-empty" class="empty-state" hidden>
+            <p>Aucune opération à venir.</p>
+            <p>Ajoute une rentrée ou une charge prévue pour anticiper ton solde.</p>
+          </div>
+        </section>
+
+        <section class="detail-card" id="entries" aria-labelledby="entries-heading">
+          <header class="detail-heading entry-heading">
+            <div>
+              <h2 id="entries-heading">Opérations</h2>
+              <p id="entry-count"></p>
+            </div>
+            <div class="filter-field">
+              <label for="entry-filter" class="sr-only">Filtrer les opérations</label>
+              <select id="entry-filter">
+                <option value="all">Toutes</option>
+                <option value="income">Rentrées</option>
+                <option value="bill">Charges</option>
+                <option value="expense">Dépenses</option>
+              </select>
+            </div>
+          </header>
+          <ul id="entry-list" class="flow-list"></ul>
+          <div id="entry-empty" class="empty-state" hidden>
+            <p>Aucune opération à afficher.</p>
+            <button id="add-entry-empty" class="button button-secondary" type="button">Ajouter une opération</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="settings-card" id="settings" aria-labelledby="settings-heading">
+        <div>
+          <h2 id="settings-heading">Mes données</h2>
+          <p>Ton budget est enregistré dans ce navigateur. Exporte une copie pour le sauvegarder.</p>
+        </div>
+        <div class="settings-actions">
+          <button class="button button-secondary" id="export-button" type="button">Exporter</button>
+          <label for="import-file" class="import-control"><input type="file" id="import-file" accept=".json,application/json"><span>Importer</span></label>
+          <button class="button button-secondary" id="demo-button" type="button">Voir la démo</button>
+        </div>
+      </section>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <noscript><p>Active JavaScript pour utiliser Cap Étudiant.</p></noscript>
+    </main>
+  </div>
+
+  <dialog id="entry-dialog" aria-labelledby="entry-dialog-title">
+    <form id="entry-form">
+      <header class="dialog-header">
+        <h2 id="entry-dialog-title">Ajouter une opération</h2>
+        <button class="close-button" type="button" data-close-dialog aria-label="Fermer">×</button>
+      </header>
+      <input type="hidden" id="entry-id" name="id">
+      <label for="entry-type">Type
+        <select id="entry-type" name="type" required>
+          <option value="expense">Dépense</option>
+          <option value="bill">Charge</option>
+          <option value="income">Rentrée d’argent</option>
+        </select>
+      </label>
+      <label for="entry-label">Libellé
+        <input id="entry-label" name="label" type="text" maxlength="80" placeholder="Ex. Courses" required autofocus>
+      </label>
+      <div class="form-columns">
+        <label for="entry-amount">Montant en euros
+          <input id="entry-amount" name="amount" type="text" inputmode="decimal" maxlength="12" placeholder="0,00" required>
+        </label>
+        <label for="entry-date">Date
+          <input id="entry-date" name="date" type="date" required>
+        </label>
+      </div>
+      <label for="entry-category">Catégorie <span class="optional">(facultatif)</span>
+        <input id="entry-category" name="category" type="text" maxlength="40" list="categories" placeholder="Choisir ou écrire une catégorie">
+      </label>
+      <datalist id="categories">
+        <option value="Logement"></option>
+        <option value="Alimentation"></option>
+        <option value="Transport"></option>
+        <option value="Études"></option>
+        <option value="Santé"></option>
+        <option value="Loisirs"></option>
+        <option value="Abonnements"></option>
+        <option value="Bourse"></option>
+        <option value="Salaire"></option>
+        <option value="Aide familiale"></option>
+        <option value="Autre"></option>
+      </datalist>
+      <label for="entry-settled" class="checkbox-label"><input id="entry-settled" name="settled" type="checkbox"> <span id="entry-settled-label">Opération déjà effectuée</span></label>
+      <p class="form-error" id="entry-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button button-danger" id="entry-delete" type="button" hidden>Supprimer</button>
+        <button class="button button-secondary" type="button" data-close-dialog>Annuler</button>
+        <button class="button button-primary" type="submit">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="balance-dialog" aria-labelledby="balance-dialog-title">
+    <form id="balance-form">
+      <header class="dialog-header">
+        <h2 id="balance-dialog-title">Renseigner mon solde</h2>
+        <button class="close-button" type="button" data-close-dialog aria-label="Fermer">×</button>
+      </header>
+      <p class="dialog-intro">Indique le solde au début de la journée choisie, avant les opérations saisies à cette date.</p>
+      <div class="form-columns">
+        <label for="balance-input">Solde en euros
+          <input id="balance-input" name="balance" type="text" inputmode="decimal" maxlength="13" placeholder="0,00" required autofocus>
+        </label>
+        <label for="balance-asof">Date du solde
+          <input id="balance-asof" name="asOf" type="date" required>
+        </label>
+      </div>
+      <p class="form-error" id="balance-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button button-secondary" type="button" data-close-dialog>Annuler</button>
+        <button class="button button-primary" type="submit">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
